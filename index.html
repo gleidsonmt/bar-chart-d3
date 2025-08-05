@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Chart</title>
+</head>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+    }
+
+    svg {
+        background-color: rgb(241, 241, 241);
+    }
+</style>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.0.0/d3.min.js"></script>
+    <script>
+
+        const data = d3.json(
+            "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json"
+        ).then(dataset => {
+
+            var w = 700;
+            var h = 500;
+
+            var padding = 50;
+
+            var minX = d3.min(dataset.data, d => new Date(d[0]));
+            var maxX = d3.max(dataset.data, d => new Date(d[0]));
+
+            var xScale = d3
+                .scaleTime()
+                .domain([
+                    d3.min(dataset.data.map(item => new Date(item[0]))),
+                    d3.max(dataset.data, d => new Date(d[0]))
+                ])
+                .range([
+                    padding,
+                    w - padding
+                ]);
+
+            var xAxis = d3.axisBottom().scale(xScale);
+
+            var yScale = d3
+                .scaleLinear()
+                .domain([
+                    50,
+                    d3.max(dataset.data, d => d[1])
+                ])
+                .range([h, padding]);
+
+            var yAxis = d3.axisLeft().scale(yScale);
+
+            const svg = d3
+                .select('body')
+                .append('svg')
+                .attr('width', w)
+                .attr('height', h)
+                .attr('id', 'title');
+
+            svg
+                .append('g')
+                .call(xAxis)
+                .attr('id', 'x-axis')
+                .attr('transform', 'translate(0, ' + (h - padding) + ')');
+
+            svg
+                .append('g')
+                .call(yAxis)
+                .attr('id', 'y-axis')
+                .attr('transform', 'translate(' + padding + ', ' + (-padding) + ')');
+
+            svg.selectAll('rect')
+                .data(dataset.data)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('data-date', d => d[0])
+                .attr('data-gdp', d => d[1])
+                .attr('x', (d, i) => xScale(new Date(d[0])))
+                // .attr('y', d => (yScale(d[1]) - padding))
+                .attr('y', d => (yScale(d[1]) - padding))
+                .attr('width', (w - 2 * padding) / dataset.data.length)
+                .attr('height', d => h - (yScale(d[1] + padding)))
+                // .attr('height', d => (h - (yScale(d[1])) - padding))
+                .attr('fill', 'blue')
+
+        })
+
+
+    </script>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+    <!-- ...existing code... -->
+
+</body>
+
+</html>
